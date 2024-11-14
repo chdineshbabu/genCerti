@@ -11,6 +11,7 @@
   "dependencies": {
     "firebase": "^10.13.0",
     "framer-motion": "^11.3.28",
+    "mongoose": "^8.8.1",
     "next": "14.2.5",
     "next-router-mock": "^0.9.13",
     "react": "^18",
