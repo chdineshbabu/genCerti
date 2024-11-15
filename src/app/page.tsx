@@ -6,12 +6,46 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../config/firebase";
 import Logo from "../../public/gencertiLogo.png";
 import { IoPersonCircleOutline } from "react-icons/io5";
+import { checkWalletConnection, connectWallet, listenForAccountChanges } from "@/utils/walletConnection";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const router = useRouter();
   const [user, loading] = useAuthState(auth);
+  const [account, setAccount] = useState(null)
+  const [isConnected, setIsConnected] = useState(false)
+  const connect = async () => {
+    const walletData = await connectWallet();
+    if (walletData) {
+        setAccount(walletData.account);
+        setIsConnected(true);
+        console.log(account);
+    }
+}
+const checkConnection = async () => {
+    const account = await checkWalletConnection();
+    if (account) {
+        setAccount(account);
+        setIsConnected(true);
+    } else {
+        setIsConnected(false);
+    }
+};
+
+useEffect(() => {
+    checkConnection();
+
+    listenForAccountChanges((accounts: any) => {
+        if (accounts.length > 0) {
+            setAccount(accounts[0]);
+            setIsConnected(true);
+        } else {
+            setIsConnected(false);
+        }
+    });
+}, []);
   function next() {
-    if (user) {
+    if (user && account) {
       router.push("/dash");
     } else {
       router.push("/login");
