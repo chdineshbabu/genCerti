@@ -33,12 +33,27 @@ export async function GET(req){
   try{
     const eventId = req.nextUrl.searchParams.get("eventId")
     const event = await Event.findOne({ eventId }).populate("participants");
-
+    console.log(eventId)
     if (!event) {
       return NextResponse.json({ message: "Event not found" });
     }
     return NextResponse.json(event)
   }catch(error){
     return NextResponse.json({message:"Error getting Participent",error})
+  }
+}
+export async function DELETE(req) {
+  try {
+    const { participantId } = await req.json();
+    await connectMongoDB();
+    const participant = await Participant.findOne({ pId: participantId });
+    if (!participant) {
+      return NextResponse.json({ message: "Participant not found" }, { status: 404 });
+    }
+    await Participant.deleteOne({ pId: participantId });
+    return NextResponse.json({ message: "Participant deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting participant:", error);
+    return NextResponse.json({ message: "Error deleting participant", error }, { status: 500 });
   }
 }

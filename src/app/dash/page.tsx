@@ -4,20 +4,20 @@ import DashBody from '@/components/DashBody';
 import DashNav from '@/components/DashNav';
 import { auth } from '@/config/firebase';
 import { checkWalletConnection, connectWallet, listenForAccountChanges } from '@/utils/walletConnection';
+import axios from 'axios';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
-export default function Dashboard(){
-    const [orgData, setOrgData] = useState()
+export default function Dashboard() {
     const router = useRouter()
     const [user] = useAuthState(auth);
 
     const [account, setAccount] = useState(null)
     const [isConnected, setIsConnected] = useState(false)
     useEffect(()=>{
-        fetch('api/orginizations')
-    })
+
+    },[])
     const checkConnection = async () => {
         const account = await checkWalletConnection();
         if (account) {
@@ -47,7 +47,7 @@ export default function Dashboard(){
         }
     }, [user, router, account]);
 
-    return(
+    return (
         <main className='min-h-screen'>
             <DashNav />
             <DashBody />

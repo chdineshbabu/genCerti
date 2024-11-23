@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const eventSchema = new Schema(
   {
     eventId: {
-      type: Number,
+      type: String,
       required: true,
     },
     eventName: {
@@ -33,7 +33,11 @@ const eventSchema = new Schema(
     participants: [{
       type: Schema.Types.ObjectId,
       ref: "Participant",
-    }]
+    }],
+    isIssued: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: true }
 );

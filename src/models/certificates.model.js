@@ -3,11 +3,13 @@ import mongoose,{Schema} from "mongoose";
 const certificateSchema = new Schema({
     pId:{
         type: Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: "Participant",
     },
     eventId:{
         type: Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: "Event",
     },
     issueDate:{
         type: Date,

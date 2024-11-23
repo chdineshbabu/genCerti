@@ -27,8 +27,6 @@ export async function POST(req){
 export async function GET(req){
     const orgId = req.nextUrl.searchParams.get("orgId")
     await connectMongoDB();
-    console.log(orgId)
     const events = await Event.find({orginizationId:orgId})
-    console.log(events)
     return NextResponse.json(events)
 }

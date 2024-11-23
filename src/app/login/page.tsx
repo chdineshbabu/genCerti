@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Logo from '../../../public/gencertiLogo.png'
 import Image from "next/image";
 import { checkWalletConnection, connectWallet, listenForAccountChanges } from "@/utils/walletConnection";
+import axios from "axios";
 
 export default function Login() {
     const router = useRouter();
