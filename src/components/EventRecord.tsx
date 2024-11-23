@@ -8,9 +8,8 @@ import { auth } from '@/config/firebase'
 import axios from 'axios'
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from 'react-datepicker'
-import {generateRandom} from '@/utils/randomId'
+import { generateRandom } from '@/utils/randomId'
 import { useRouter } from "next/navigation";
-
 
 type Event = {
     eventId: string;
@@ -41,32 +40,39 @@ export default function EventRecord() {
                 location: location,
                 orginizationId: 122,
                 description: description,
-                certificateTemplate: "certificateTemplate",
-                date: date
-            }).then(function (response) {
-                alert("Event Created successfully")
-            })
-            setName('')
-            setLocation('')
-            setDescription('')
-            setCertificateTemplate(null)
-            setDate(null)
-            getEvents()
+                certificateTemplate: certificateTemplate,
+                date: date,
+            }).then(() => {
+                alert("Event Created successfully");
+                setName('');
+                setLocation('');
+                setDescription('');
+                setCertificateTemplate(null);
+                setDate(null);
+                getEvents();
+            }).catch((error) => {
+                console.error('Error creating event:', error);
+                alert('Failed to create the event.');
+            });
         }
-    }
-    async function getEvents(){
+    };
+
+    async function getEvents() {
         await axios.get('/api/events?orgId=122')
-        .then((response)=>{
-            setEvents(response.data)
-        })
+            .then((response) => {
+                setEvents(response.data);
+            }).catch((error) => {
+                console.error('Error fetching events:', error);
+            });
     }
 
-    useEffect(()=>{
-        getEvents()
-    },[user])
+    useEffect(() => {
+        getEvents();
+    }, [user]);
+
     return (
         <div className="flex flex-col md:flex-row gap-8 ml-64 max-h-screen">
-            <div className=" shadow-lg rounded-lg w-[80%] md:w-1/2 ">
+            <div className="shadow-lg rounded-lg w-[80%] md:w-1/2">
                 <h2 className="text-xl font-semibold mb-4 text-white">Create New<span className='bg-customGreen text-black font-extrabold'>Event</span></h2>
                 <form onSubmit={handleSubmit} className="space-y-2">
                     <div className="space-y-2">
@@ -105,19 +111,14 @@ export default function EventRecord() {
                     </div>
 
                     <div className="space-y-2">
-                        <label htmlFor="certificateTemplate" className="block text-sm font-medium text-gray-200">Certificate Template</label>
+                        <label htmlFor="certificateTemplate" className="block text-sm font-medium text-gray-200">Certificate Template URL</label>
                         <input
                             id="certificateTemplate"
-                            type="file"
-                            onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) {
-                                    setCertificateTemplate(file.name)
-                                } else {
-                                    setCertificateTemplate(null)
-                                }
-                            }}
-                            className="w-full p-3 border border-gray-300  rounded-md"
+                            type="url"
+                            value={certificateTemplate || ''}
+                            onChange={(e) => setCertificateTemplate(e.target.value)}
+                            placeholder="Enter URL for the certificate template"
+                            className="w-full p-3 border border-gray-300 bg-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
@@ -154,10 +155,9 @@ export default function EventRecord() {
 
             <div className="shadow-lg rounded-lg w-full md:w-1/2 p-6 overflow-y-scroll">
                 <h2 className="text-2xl font-semibold mb-8">Your<span className='bg-customGreen text-black font-extrabold'>Events</span></h2>
-
                 <ul className="space-y-4 h-80">
                     {events.map((event) => (
-                        <li key={event.eventId} onClick={() => {router.push(`event/${event.eventId}`) }} className="flex font-medium justify-between items-center border-b pb-3 hover:scale-105 transition-transform delay-75 hover:bg-customGreen hover:text-black hover:font-extrabold cursor-pointer">
+                        <li key={event.eventId} onClick={() => { router.push(`event/${event.eventId}`); }} className="flex font-medium justify-between items-center border-b pb-3 hover:scale-105 transition-transform delay-75 hover:bg-customGreen hover:text-black hover:font-extrabold cursor-pointer">
                             <span className="text-md ">{event.eventName}</span>
                             <span className="text-sm text-gray-500">{format(event.date, 'PPP')}</span>
                         </li>
@@ -165,5 +165,5 @@ export default function EventRecord() {
                 </ul>
             </div>
         </div>
-    )
+    );
 }

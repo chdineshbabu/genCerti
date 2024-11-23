@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
-import { useParams } from "next/navigation";
+import { Trash2, House, MoveLeft } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { generateRandom } from "@/utils/randomId";
 
@@ -29,6 +29,7 @@ export default function Page() {
   const [phone, setPhone] = useState("");
   const { id } = useParams();
   const [event, setEvent] = useState<Event | null>(null);
+  const router = useRouter()
 
   // const addParticipant = (e: React.FormEvent) => {
   //   e.preventDefault();
@@ -60,7 +61,7 @@ export default function Page() {
     if (!id) return;
     try {
       const response = await axios.get(`/api/participants?eventId=${id}`);
-      setParticipants(response.data.participants || []);
+      setParticipants(response.data.participants);
     } catch (error) {
       console.error("Error fetching participants:", error);
     }
@@ -119,6 +120,7 @@ export default function Page() {
 
   return (
     <div className="p-4 m-8 flex flex-col gap-6">
+      <div onClick={()=>{router.push('/dash')}} className='fixed top-4 left-12 flex gap-2 cursor-pointer hover:underline '> <MoveLeft />Home</div>
       {/* Event Details */}
       <div className="shadow-md border rounded-md p-6">
         <h2 className="text-xl font-bold">{event?.eventName}</h2>

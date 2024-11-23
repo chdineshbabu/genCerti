@@ -2,41 +2,31 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 type Certificate = {
-  id: string;
-  participantName: string;
-  eventName: string;
-  eventDate: Date;
-  issueDate: Date;
-  blockHash: string;
-  certificateHash: string;
   organizationName: string;
-};
-const fetchCertificate = (id: string): Certificate | null => {
-  const certificates: Record<string, Certificate> = {
-    "CERT001": {
-      id: "CERT001",
-      participantName: "John Doe",
-      eventName: "Web Development Workshop",
-      eventDate: new Date(2023, 5, 15),
-      issueDate: new Date(2023, 5, 20),
-      blockHash: "0x1234...5678",
-      certificateHash: "0xabcd...ef01",
-      organizationName: "Tech Academy",
-    },
-  };
-  return certificates[id] || null;
+  eventName: string;
+  participantName: string;
+  eventDate: string;
+  location: string;
+  certificateHash: string;
+  issueDate: string;
+  certificateUrl: string;
 };
 
+
 export default function ValiidateCerti() {
+  const router = useRouter()
   const [certificateId, setCertificateId] = useState('');
   const [certificate, setCertificate] = useState<Certificate | null>(null);
 
-  const handleValidate = () => {
-    const result = fetchCertificate(certificateId);
-    setCertificate(result);
+  const handleValidate =async () => {
+    const result =await axios.get(`/api/certificates/${certificateId}`);
+    setCertificate(result.data);
   };
+
 
   const handleDownload = () => {
     alert("Downloading certificate...");
@@ -89,7 +79,7 @@ export default function ValiidateCerti() {
                 </tr>
                 <tr className="border-b">
                   <td className="font-medium p-2 ">Block Hash</td>
-                  <td className="p-2 ">{certificate.blockHash}</td>
+                  <td className="p-2 ">{certificate.certificateHash}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="font-medium p-2 ">Certificate Hash</td>
@@ -104,50 +94,40 @@ export default function ValiidateCerti() {
           )}
         </div>
       </div>
-      
-      <div className="w-full lg:w-1/2 border border-gray-200 rounded-lg shadow-md p-4">
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold">Certificate Preview</h2>
-          <p className="text-gray-500">Preview and actions for the validated certificate.</p>
-        </div>
-        {certificate ? (
-          <div className="border p-4 rounded-md space-y-4 text-center">
-            <h2 className="text-2xl font-bold">{certificate.organizationName}</h2>
-            <h3 className="text-xl">Certificate of Completion</h3>
-            <p>This is to certify that</p>
-            <p className="text-2xl font-bold">{certificate.participantName}</p>
-            <p>has successfully completed</p>
-            <p className="text-xl font-semibold">{certificate.eventName}</p>
-            <p>on {format(certificate.eventDate, "PPPP")}</p>
-            <div className="text-sm text-gray-500">
-              <p>Certificate ID: {certificate.id}</p>
-              <p>Issued on: {format(certificate.issueDate, "PPPP")}</p>
+      {certificate ?<div className="flex items-center justify-center">
+      <div onClick={()=>{router.push(`/certificate/${certificate?.certificateHash}`)}} className="flex flex-col items-center max-w-4xl  hover:opacity-85 cursor-pointer w-full mx-auto">
+        <div className="relative w-[80%] aspect-[16/9] mb-6 border text-black">
+          <img
+            src={certificate?.certificateUrl}
+            alt="Certificate Background"
+            className="rounded-lg shadow-lg object-contain w-full h-full"
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-between p-8 text-center">
+            <div className="">
+              <h1 className="text-lg font-bold text-primary">
+                {certificate?.organizationName}
+              </h1>
+              <h2 className="text-lg font-semibold text-secondary">
+                {certificate?.eventName}
+              </h2>
+            </div>
+            <div className="space-y-2">
+              <p className="text-md">This certificate is awarded to</p>
+              <p className="text-xl font-bold text-primary">
+                {certificate?.participantName}
+              </p>
+              <p className="text-sm">for successfully completing the event on</p>
+              <p className="text-xs font-semibold">{format(certificate?.eventDate, "PPP")}</p>
+            </div>
+            <div className="w-full flex justify-between text-xs  text-muted-foreground">
+              <p>Certificate ID: {certificate?.certificateHash}</p>
+              <p>Issued on: {format(certificate?.issueDate, "PPP")}</p>
             </div>
           </div>
-        ) : (
-          <p className="text-center text-gray-500">No certificate to preview</p>
-        )}
-        <div className="flex justify-center space-x-4 mt-4">
-          <button
-            onClick={handleDownload}
-            disabled={!certificate}
-            className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
-              certificate ? "px-4 py-2 bg-transparent hover:border-black border hover:text-black  hover:bg-customGreen text-white rounded-lg" : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            <span>Download</span>
-          </button>
-          <button
-            onClick={handleShare}
-            disabled={!certificate}
-            className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
-              certificate ? "px-4 py-2 bg-transparent hover:border-black border hover:text-black  hover:bg-customGreen text-white rounded-lg" : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            <span>Share</span>
-          </button>
         </div>
       </div>
+    </div> : <></>}
+      
     </div>
   );
 }

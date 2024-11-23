@@ -31,7 +31,7 @@ export async function POST(req) {
 
       await newCertificate.save();
     }
-    await Event.updateOne({eventId:eventId, $set:{isIssued: true}})
+    await Event.updateOne({ eventId: eventId }, { $set: { isIssued: true } });
     return NextResponse.json({ participantCount });
   } catch (error) {
     console.error(error);

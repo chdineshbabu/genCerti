@@ -14,64 +14,72 @@ type Event = {
     date: string;
     certificates: Certificate[];
 };
-
+type Part = {
+    pName: string;
+}
 type Certificate = {
     id: number;
     pName: string;
     createdAt: string;
     location: string;
-    pId:string;
-    certificateUrl:string;
+    pId: Part;
+    certificateUrl: string;
 };
 
 export default function CertificateRecord() {
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
     const [participants, setParticipants] = useState<Certificate[]>([]);
     const [events, setEvents] = useState<Event[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const router = useRouter();
 
-    // Fetch events
     const getEvents = async () => {
+        setLoading(true);
         try {
             const response = await axios.get('/api/events?orgId=122');
             setEvents(response.data);
-        } catch (error) {
-            console.error('Error fetching events:', error);
+            setError('');
+        } catch (err) {
+            console.error('Error fetching events:', err);
+            setError('Failed to fetch events. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
-    // Fetch certificates for the selected event
     const getCertificates = async (eventId: string) => {
+        setLoading(true);
         try {
             const response = await axios.get(`/api/certificates?id=${eventId}`);
             setParticipants(response.data || []);
+            setError('');
         } catch (err) {
             console.error('Error fetching certificates:', err);
+            setError('Failed to fetch certificates. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
-    // Fetch events on component mount
     useEffect(() => {
         getEvents();
     }, []);
 
-    // Handle event selection
     const handleEventChange = (eventId: string) => {
         const event = events.find((e) => e.eventId === eventId) || null;
         setSelectedEvent(event);
 
         if (event && event._id) {
-            getCertificates(event._id); // Use the `_id` for querying certificates
+            getCertificates(event._id);
         } else {
-            setParticipants([]); // Clear participants if no event is selected
+            setParticipants([]);
         }
     };
-    console.log(participants)
 
     return (
         <div className="space-y-4 ml-64">
-            {/* Event Selector */}
             <div className="border border-gray-200 rounded-lg shadow-md p-4">
                 <div className="mb-4">
                     <h2 className="text-xl font-semibold">
@@ -91,15 +99,17 @@ export default function CertificateRecord() {
                         ))}
                     </select>
                 </div>
+                {loading && <p className="text-gray-400 mt-2">Loading...</p>}
+                {error && <p className="text-red-500 mt-2">{error}</p>}
             </div>
 
-            {/* Certificates Display */}
-            {selectedEvent && (
+            {selectedEvent ? (
                 <div className="border border-gray-200 rounded-lg shadow-md p-4 pb-0">
                     <div className="mb-2">
                         <h2 className="text-xl font-semibold">{selectedEvent.eventName} Certificates</h2>
                         <p className="text-gray-500">
-                            Event Date: {new Date(selectedEvent.date).toLocaleDateString()} | Location: {selectedEvent.location}
+                            Event Date: {new Date(selectedEvent.date).toLocaleDateString()} | Location:{' '}
+                            {selectedEvent.location}
                         </p>
                     </div>
                     <div className="overflow-y-scroll max-h-96">
@@ -111,22 +121,32 @@ export default function CertificateRecord() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {participants.map((certificate) => (
-                                    <tr
-                                        key={certificate.id}
-                                        onClick={() => router.push(`/certificate/${certificate.certificateUrl}`)} // Redirect on row click
-                                        className="hover:bg-customGreen text-gray-200 hover:text-black cursor-pointer"
-                                    >
-                                        <td className="border p-2">{certificate.pId.pName}</td>
-                                        <td className="border p-2">
-                                            {new Date(certificate.createdAt).toLocaleDateString()}
+                                {participants.length > 0 ? (
+                                    participants.map((certificate) => (
+                                        <tr
+                                            key={certificate.id}
+                                            onClick={() => router.push(`/certificate/${certificate.certificateUrl}`)}
+                                            className="hover:bg-customGreen text-gray-200 hover:text-black cursor-pointer"
+                                        >
+                                            <td className="border p-2">{certificate.pId.pName}</td>
+                                            <td className="border p-2">
+                                                {new Date(certificate.createdAt).toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={2} className="text-center p-4 text-gray-400">
+                                            No certificates found.
                                         </td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     </div>
                 </div>
+            ) : (
+                <p className="text-gray-400">Please select an event to view its certificates.</p>
             )}
         </div>
     );
