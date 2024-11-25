@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const OrginizationSchema =new mongoose.Schema(
   {
     orgId: {
-      type: Number,
+      type: String,
       required: true,
     },
     orgName: {

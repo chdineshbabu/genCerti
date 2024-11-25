@@ -79,11 +79,11 @@ export default function ValiidateCerti() {
                 </tr>
                 <tr className="border-b">
                   <td className="font-medium p-2 ">Block Hash</td>
-                  <td className="p-2 ">{certificate.certificateHash}</td>
+                  <td className="p-2 ">0x{certificate.certificateHash}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="font-medium p-2 ">Certificate Hash</td>
-                  <td className="p-2 ">{certificate.certificateHash}</td>
+                  <td className="p-2 ">0x{certificate.certificateHash}</td>
                 </tr>
                 <tr>
                   <td className="font-medium p-2 ">Organization Name</td>
@@ -94,8 +94,9 @@ export default function ValiidateCerti() {
           )}
         </div>
       </div>
-      {certificate ?<div className="flex items-center justify-center">
-      <div onClick={()=>{router.push(`/certificate/${certificate?.certificateHash}`)}} className="flex flex-col items-center max-w-4xl  hover:opacity-85 cursor-pointer w-full mx-auto">
+      {certificate ?<div className="flex flex-col items-center justify-center">
+        <h1 className='text-2xl font-thin mb-4'>Click to Download</h1>
+      <div onClick={()=>{router.push(`/certificate/${certificate?.certificateHash}`)}} className="flex flex-col items-center max-w-4xl  hover:opacity-55 cursor-pointer w-full mx-auto">
         <div className="relative w-[80%] aspect-[16/9] mb-6 border text-black">
           <img
             src={certificate?.certificateUrl}

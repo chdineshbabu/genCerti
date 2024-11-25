@@ -15,7 +15,7 @@ const eventSchema = new Schema(
       required: true,
     },
     orginizationId: {
-      type: Number,
+      type: String,
       required: true,
     },
     description: {

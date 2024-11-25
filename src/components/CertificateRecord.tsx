@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useRouter } from 'next/navigation';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '@/config/firebase';
 
 type Event = {
     _id: string | undefined;
@@ -27,6 +29,7 @@ type Certificate = {
 };
 
 export default function CertificateRecord() {
+    const [user] = useAuthState(auth)
     const { id } = useParams<{ id: string }>();
     const [participants, setParticipants] = useState<Certificate[]>([]);
     const [events, setEvents] = useState<Event[]>([]);
@@ -38,7 +41,7 @@ export default function CertificateRecord() {
     const getEvents = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/api/events?orgId=122');
+            const response = await axios.get(`/api/events?orgId=${user?.uid}`);
             setEvents(response.data);
             setError('');
         } catch (err) {

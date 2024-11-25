@@ -38,7 +38,7 @@ export default function EventRecord() {
                 eventId: generateRandom(),
                 eventName: name,
                 location: location,
-                orginizationId: 122,
+                orginizationId: user?.uid,
                 description: description,
                 certificateTemplate: certificateTemplate,
                 date: date,
@@ -58,7 +58,7 @@ export default function EventRecord() {
     };
 
     async function getEvents() {
-        await axios.get('/api/events?orgId=122')
+        await axios.get(`/api/events?orgId=${user?.uid}`)
             .then((response) => {
                 setEvents(response.data);
             }).catch((error) => {

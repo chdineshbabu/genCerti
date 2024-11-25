@@ -116,7 +116,7 @@ export default function Page() {
   useEffect(() => {
     getEvent();
     getParticipants();
-  }, [id]);
+  });
 
   return (
     <div className="p-4 m-8 flex flex-col gap-6">

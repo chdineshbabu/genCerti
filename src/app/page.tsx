@@ -46,7 +46,7 @@ useEffect(() => {
 }, []);
   function next() {
     if (user && account) {
-      router.push("/dash");
+      router.push("/login");
     } else {
       router.push("/login");
     }
