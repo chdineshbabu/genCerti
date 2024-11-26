@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { deploy } from '../api/contract/deploy'
+import { Deploy } from '../api/contract/deploy'
 
 function Page() {
   const [contractAddress, setContractAddress] = useState(null)
@@ -9,7 +9,7 @@ function Page() {
   async function handleButton() {
     setLoading(true)
     try {
-      const contract = await deploy()
+      const contract = await Deploy()
       console.log(contract.contractAddress)
       setContractAddress(contract?.contractAddress)
     } catch (error) {
