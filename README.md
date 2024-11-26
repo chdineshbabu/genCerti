@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# GenCerti  
+**A Blockchain-Based Certificate Management App**  
 
-## Getting Started
+## Description  
+GenCerti is an innovative blockchain-based application designed to simplify the process of creating, issuing, and validating certificates. The app ensures that certificates are tamper-proof, easily shareable, and verifiable. By leveraging the decentralized nature of blockchain, organizations can provide secure digital certificates to participants of their events.  
 
-First, run the development server:
+The process involves creating organizations and events, adding participants, issuing certificates, and verifying them on a public blockchain, making the entire process transparent and trustworthy.
 
+---
+
+## Features  
+- Secure certificate creation using blockchain.  
+- Easily manage organizations and events.  
+- Tamper-proof and publicly verifiable certificates.  
+- Simple and intuitive user interface.  
+
+---
+
+## Steps to Create and Manage Certificates  
+
+1. **Login and Connect the Wallet**  
+   - Use your blockchain wallet to log in and establish a secure connection.
+
+2. **Create Your Organization**  
+   - Set up your organization profile to manage events and certificates under a unique identity.
+
+3. **Create an Event**  
+   - Define the event details for which certificates will be issued.
+
+4. **Add Participants and Issue Certificates**  
+   - Add participant details and generate blockchain-backed certificates for each attendee.
+
+5. **Validate Certificate on the Validation Page**  
+   - Verify issued certificates through the public validation feature.
+
+---
+
+## Developer Section  
+
+### Prerequisites  
+- **Node.js**: Ensure you have Node.js installed on your machine.  
+- **Blockchain Wallet**: A wallet like Metamask is required to interact with the app.  
+- **Dependencies**: This project uses Next.js and blockchain libraries.  
+
+### Installation  
+
+1. Clone the repository:  
+   ```bash
+   git clone https://github.com/chdineshbabu/genCerti.git
+   ````
+2. Navigate to the project directory:
+```node
+   cd GenCerti
+   ```
+3. Install dependencies
+```bash
+npm install
+```
+4. Start the development server:
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
