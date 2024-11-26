@@ -11,7 +11,7 @@ import {
   connectWallet,
   listenForAccountChanges,
 } from "@/utils/walletConnection";
-
+ 
 export default function Login() {
   const router = useRouter();
   const [user] = useAuthState(auth);

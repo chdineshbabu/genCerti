@@ -14,6 +14,7 @@ type Certificate = {
   certificateHash: string;
   issueDate: string;
   certificateUrl: string;
+  blockHash:string;
 };
 
 
@@ -79,7 +80,7 @@ export default function ValiidateCerti() {
                 </tr>
                 <tr className="border-b">
                   <td className="font-medium p-2 ">Block Hash</td>
-                  <td className="p-2 ">0x{certificate.certificateHash}</td>
+                  <td className="p-2 text-xs">{certificate.blockHash}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="font-medium p-2 ">Certificate Hash</td>

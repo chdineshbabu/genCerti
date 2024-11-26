@@ -1,9 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Trash2, House, MoveLeft } from "lucide-react";
+import { Trash2, MoveLeft } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { generateRandom } from "@/utils/randomId";
+import { addCertificate } from "@/app/api/contract/deploy";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/config/firebase";
 
 interface Participant {
   pId: string;
@@ -13,6 +16,7 @@ interface Participant {
 }
 
 type Event = {
+  _id:string;
   eventId: string | undefined;
   eventName: string;
   location: string;
@@ -23,104 +27,119 @@ type Event = {
 };
 
 export default function Page() {
+  const [user] = useAuthState(auth);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const { id } = useParams();
   const [event, setEvent] = useState<Event | null>(null);
-  const router = useRouter()
+  const [loading, setLoading] = useState(false); // Loading state for API calls
+  const router = useRouter();
+  const [hashes, setHashes] = useState([])
+  const [contractAddress,setContractAddress] = useState(null)
 
-  // const addParticipant = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (name && email && phone) {
-  //     const newParticipant: Participant = {
-  //       pId: generateRandom(),
-  //       pName: name,
-  //       pEmail: email,
-  //       phone,
-  //     };
-  //     setParticipants([...participants, newParticipant]);
-  //     setName("");
-  //     setEmail("");
-  //     setPhone("");
-  //   }
-  // };
-
-  const getEvent = async () => {
+  const fetchData = async () => {
     if (!id) return;
+    setLoading(true);
     try {
-      const response = await axios.get(`/api/events/${id}`);
-      setEvent(response.data);
+      const [eventResponse, participantsResponse] = await Promise.all([
+        axios.get(`/api/events/${id}`),
+        axios.get(`/api/participants?eventId=${id}`),
+      ]);
+      setEvent(eventResponse.data);
+      setParticipants(participantsResponse.data.participants || []);
     } catch (error) {
-      console.error("Error fetching event:", error);
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
   };
-
-  const getParticipants = async () => {
-    if (!id) return;
-    try {
-      const response = await axios.get(`/api/participants?eventId=${id}`);
-      setParticipants(response.data.participants);
-    } catch (error) {
-      console.error("Error fetching participants:", error);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (name && email && phone) {
+  const checkOrganizationExists = async () => {
+    if (user) {
       try {
-        await axios.post("/api/participants", {
-          pId: generateRandom(),
-          pName: name,
-          pEmail: email,
-          phone,
-          eventId: id,
-        });
-        alert("Participant added successfully");
-        setName("");
-        setEmail("");
-        setPhone("");
-        getParticipants();
+        const response = await axios.get(`/api/orginization?orgId=${user.uid}`);
+        setContractAddress(response.data?.contractAddress)
       } catch (error) {
-        console.error("Error adding participant:", error);
+        console.error("Error checking organization:", error);
       }
     }
   };
 
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !email || !phone) return;
+    setLoading(true);
+    try {
+      await axios.post("/api/participants", {
+        pId: generateRandom(),
+        pName: name,
+        pEmail: email,
+        phone,
+        eventId: id,
+      });
+      setName("");
+      setEmail("");
+      setPhone("");
+      fetchData(); // Refresh data after successful submission
+    } catch (error) {
+      console.error("Error adding participant:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const deleteParticipant = async (participantId: string) => {
+    setLoading(true);
     try {
       await axios.delete("/api/participants", {
         data: { participantId },
       });
-      alert("Participant deleted successfully");
-      getParticipants();
+      fetchData(); // Refresh data after deletion
     } catch (error) {
       console.error("Error deleting participant:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const issueCertificates = async () => {
     if (!id) return;
+    setLoading(true);
     try {
-      await axios.post("/api/certificates", { eventId: id });
-      alert("Certificates issued successfully");
-      getEvent();
-      getParticipants();
+      
+      await axios.post("/api/certificates", { eventId: id }).then((response)=>{
+        setHashes(response.data)
+      })
+      const vaild = await addCertificate(contractAddress,hashes)
+      await axios.put('/api/certificates',{
+        eventId: event?._id,
+        blockHash: vaild
+      })
+      console.log(vaild)
+      fetchData(); // Refresh data after issuing certificates
     } catch (error) {
       console.error("Error issuing certificates:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    getEvent();
-    getParticipants();
-  });
+    fetchData(); // Fetch data on component load
+    checkOrganizationExists()
+  }, []);
 
   return (
     <div className="p-4 m-8 flex flex-col gap-6">
-      <div onClick={()=>{router.push('/dash')}} className='fixed top-4 left-12 flex gap-2 cursor-pointer hover:underline '> <MoveLeft />Home</div>
+      <div
+        onClick={() => router.push("/dash")}
+        className="fixed top-4 left-12 flex gap-2 cursor-pointer hover:underline"
+      >
+        <MoveLeft /> Home
+      </div>
       {/* Event Details */}
       <div className="shadow-md border rounded-md p-6">
         <h2 className="text-xl font-bold">{event?.eventName}</h2>
@@ -150,7 +169,7 @@ export default function Page() {
         {!event?.isIssued && (
           <div className="shadow-md border rounded-md p-6 w-full md:w-1/2">
             <h3 className="text-lg font-bold mb-4">Add Participant</h3>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label
                   htmlFor="name"
@@ -200,18 +219,28 @@ export default function Page() {
                 />
               </div>
               <button
-                onClick={handleSubmit}
                 type="submit"
-                className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className={`w-full py-2 px-4 rounded-md ${
+                  loading
+                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                    : "bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                }`}
+                disabled={loading}
               >
-                Add Participant
+                {loading ? "Adding..." : "Add Participant"}
               </button>
             </form>
           </div>
         )}
 
         {/* Participants */}
-        <div className={`shadow-md border rounded-md p-6  ${!event?.isIssued ? "max-h-96 w-full md:w-1/2 overflow-y-scroll":"min-h-fit min-w-full px-32"}`}>
+        <div
+          className={`shadow-md border rounded-md p-6 ${
+            !event?.isIssued
+              ? "max-h-96 w-full md:w-1/2 overflow-y-scroll"
+              : "min-h-fit min-w-full px-32"
+          }`}
+        >
           <h3 className="text-lg font-bold mb-4 text-customGreen">Participants</h3>
           {participants.length === 0 ? (
             <p className="text-gray-600">No participants yet.</p>
@@ -230,6 +259,7 @@ export default function Page() {
                     <button
                       className="text-red-600 hover:text-red-800 focus:outline-none"
                       onClick={() => deleteParticipant(participant.pId)}
+                      disabled={loading}
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
@@ -245,14 +275,14 @@ export default function Page() {
       {!event?.isIssued && (
         <button
           onClick={issueCertificates}
-          disabled={participants.length === 0}
+          disabled={participants.length === 0 || loading}
           className={`py-2 w-full px-4 rounded-md ${
-            participants.length === 0
+            participants.length === 0 || loading
               ? "bg-gray-300 text-gray-600 cursor-not-allowed"
               : "bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
           }`}
         >
-          Issue Certificates
+          {loading ? "Issuing..." : "Issue Certificates"}
         </button>
       )}
     </div>

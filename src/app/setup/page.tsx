@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { auth } from "@/config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import axios from "axios";
-import { deploy } from "../api/contract/deploy";
+import  {Deploy}  from "../api/contract/deploy";
 
 interface Organization {
   name: string;
@@ -36,7 +36,7 @@ export default function CreateOrganization() {
     setStatus("Deploying contract...");
 
     try {
-      const contract = await deploy();
+      const contract = await Deploy();
       const contractAddress = contract?.contractAddress;
       if (!contractAddress) {
         throw new Error("Failed to retrieve contract address.");

@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
-import { Download, Share2 ,House} from 'lucide-react';
-import { format } from 'date-fns';
+import { Download, Share2, House } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import { exportComponentAsJPEG, exportComponentAsPNG, exportComponentAsPDF } from 'react-component-export-image';
 
 type Certificate = {
   organizationName: string;
@@ -19,19 +20,19 @@ type Certificate = {
 };
 
 export default function CertificatePage() {
-  const router = useRouter()
+  const componentRef = useRef<HTMLDivElement>(null); // Properly typed useRef
+  const router = useRouter();
   const { id } = useParams() as { id: string };
-  const [certificateData, setCertificate] = useState<Certificate | null>(null);
-  console.log(certificateData)
+  const [certificateData, setCertificateData] = useState<Certificate | null>(null);
 
-  async function getCertificate(id: string) {
+  const getCertificate = async (certificateId: string) => {
     try {
-      const response = await axios.get(`/api/certificates/${id}`);
-      setCertificate(response.data);
+      const response = await axios.get(`/api/certificates/${certificateId}`);
+      setCertificateData(response.data);
     } catch (error) {
       console.error('Error fetching certificate data:', error);
     }
-  }
+  };
 
   useEffect(() => {
     if (id) {
@@ -41,6 +42,7 @@ export default function CertificatePage() {
 
   const handleDownload = () => {
     if (certificateData) {
+      exportComponentAsPNG(componentRef);
       console.log(`Downloading certificate ${certificateData.certificateHash}`);
     }
   };
@@ -71,9 +73,18 @@ export default function CertificatePage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div onClick={()=>{router.push('/dash')}} className='fixed top-10 left-10 flex gap-2 cursor-pointer hover:underline '> <House />Home</div>
+      <div
+        onClick={() => router.push('/dash')}
+        className="fixed top-10 left-10 flex gap-2 cursor-pointer hover:underline"
+      >
+        <House /> Home
+      </div>
       <div className="flex flex-col items-center max-w-4xl w-full mx-auto">
-        <div className="relative w-[80%] aspect-[16/9] mb-6 border text-black">
+        <div
+          className="relative w-[80%] aspect-[16/9] mb-6 border text-black"
+          ref={componentRef}
+          id="print"
+        >
           <img
             src={certificateData.certificateUrl}
             alt="Certificate Background"
@@ -94,11 +105,13 @@ export default function CertificatePage() {
                 {certificateData.participantName}
               </p>
               <p className="text-lg md:text-xl">for successfully completing the event on</p>
-              <p className="text-xl md:text-2xl font-semibold">{format(certificateData.eventDate, "PPP")}</p>
+              <p className="text-xl md:text-2xl font-semibold">
+                {format(parseISO(certificateData.eventDate), 'PPP')}
+              </p>
             </div>
-            <div className="w-full flex justify-between text-xs  text-muted-foreground">
+            <div className="w-full flex justify-between text-xs text-muted-foreground">
               <p>Certificate ID: {certificateData.certificateHash}</p>
-              <p>Issued on: {format(certificateData.issueDate, "PPP")}</p>
+              <p>Issued on: {format(parseISO(certificateData.issueDate), 'PPP')}</p>
             </div>
           </div>
         </div>
