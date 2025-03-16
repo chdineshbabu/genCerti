@@ -57,7 +57,7 @@ export default function Login() {
     <div className="min-h-screen">
       <div className="h-20 bg-gray-950 border-b-2 flex items-center justify-center">
         {" "}
-        <Image src={Logo} alt="Logo" width={150} height={150} />{" "}
+        <h1 className="text-3xl font-bold">Block<span className="bg-lime-500 text-black">Verify</span></h1>
       </div>
       <div className="flex py-48 items-center gap-6 flex-col text-center">
         <h1 className="text-4xl font-bold">

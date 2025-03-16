@@ -55,7 +55,7 @@ useEffect(() => {
   return (
     <main className="min-h-screen px-48 pb-0 py-20">
       <div className="flex justify-between items-center">
-        <Image src={Logo} alt="genCerti Logo" width={200} height={200} />
+        <h1 className="text-3xl font-bold">Block<span className="bg-lime-500 text-black">Verify</span></h1>
         {user ? (
           <div className="flex items-center gap-2">
             <IoPersonCircleOutline /> {user?.displayName}

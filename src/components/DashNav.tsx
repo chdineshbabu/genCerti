@@ -64,7 +64,7 @@ export default function DashNav() {
 
     return (
         <div className="border-b-2 min-h-20 flex justify-between items-center px-36">
-            <Image src={Logo} alt="Logo" width={150} height={150} />
+            <h1 className="text-3xl font-bold">Block<span className="bg-lime-500 text-black">Verify</span></h1>
             <div className='flex gap-6 items-center'>
                 {isConnected ? (
                     <p className=''>{trimAddress(account)}</p>

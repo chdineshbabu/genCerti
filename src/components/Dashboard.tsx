@@ -25,7 +25,7 @@ useEffect(() => {
     <div className="flex flex-col items-center justify-center my-16  p-4 text-center ml-32">
       <Award className="w-16 h-16 mb-4 text-blue-600 dark:text-blue-400" />
       <h1 className="text-4xl font-light tracking-tight sm:text-5xl mb-4">
-        Welcome, <span className='font-thin text-customGreen'>{user?.displayName}</span>
+        Welcome
        </h1>
        <p className='font-thin'>{account}</p>
        
