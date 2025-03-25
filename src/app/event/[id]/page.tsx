@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Trash2, MoveLeft } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
@@ -39,7 +39,7 @@ export default function Page() {
   const [hashes, setHashes] = useState([])
   const [contractAddress,setContractAddress] = useState(null)
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!id) return;
     setLoading(true);
     try {
@@ -54,8 +54,9 @@ export default function Page() {
     } finally {
       setLoading(false);
     }
-  };
-  const checkOrganizationExists = async () => {
+  }, [id]);
+
+  const checkOrganizationExists = useCallback(async () => {
     if (user) {
       try {
         const response = await axios.get(`/api/orginization?orgId=${user.uid}`);
@@ -64,9 +65,7 @@ export default function Page() {
         console.error("Error checking organization:", error);
       }
     }
-  };
-
-
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,9 +127,9 @@ export default function Page() {
   };
 
   useEffect(() => {
-    fetchData(); // Fetch data on component load
-    checkOrganizationExists()
-  }, []);
+    fetchData();
+    checkOrganizationExists();
+  }, [fetchData, checkOrganizationExists]);
 
   return (
     <div className="p-4 m-8 flex flex-col gap-6">

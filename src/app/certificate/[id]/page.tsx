@@ -7,6 +7,7 @@ import { Download, Share2, House } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { exportComponentAsJPEG, exportComponentAsPNG, exportComponentAsPDF } from 'react-component-export-image';
+import Image from 'next/image';
 
 type Certificate = {
   organizationName: string;
@@ -85,10 +86,13 @@ export default function CertificatePage() {
           ref={componentRef}
           id="print"
         >
-          <img
+          <Image
             src={certificateData.certificateUrl}
-            alt="Certificate Background"
-            className="rounded-lg shadow-lg object-contain w-full h-full"
+            alt="Certificate"
+            width={1200}
+            height={800}
+            className="w-full h-auto"
+            priority
           />
           <div className="absolute inset-0 flex flex-col items-center justify-between p-12 text-center">
             <div className="space-y-4">

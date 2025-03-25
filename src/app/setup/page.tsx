@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { auth } from "@/config/firebase";
@@ -57,15 +57,19 @@ export default function CreateOrganization() {
         throw new Error("Failed to save organization.");
       }
     } catch (error) {
-      console.error(error);
-      alert("An error occurred while creating the organization.");
+      console.error("Organization creation error details:", error);
+      if (error instanceof Error) {
+        alert(`Failed to create organization: ${error.message}`);
+      } else {
+        alert("An unexpected error occurred while creating the organization. Please check the console for details.");
+      }
     } finally {
       setIsLoading(false);
       setStatus("");
     }
   };
 
-  const checkOrganizationExists = async () => {
+  const checkOrganizationExists = useCallback(async () => {
     if (user) {
       try {
         const response = await axios.get(`/api/orginization?orgId=${user.uid}`);
@@ -76,11 +80,11 @@ export default function CreateOrganization() {
         console.error("Error checking organization:", error);
       }
     }
-  };
+  }, [user, router]);
 
   useEffect(() => {
     checkOrganizationExists();
-  }, [user]);
+  }, [checkOrganizationExists]);
 
   const handleContinue = () => {
     router.push("/dash");

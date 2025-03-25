@@ -1,13 +1,14 @@
+"use client";
 import { auth } from '@/config/firebase';
 import { ArrowRight, Award, CheckCircle, Download, FileText, Users } from 'lucide-react'
 import { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import {  checkWalletConnection } from '../utils/walletConnection'
+import { checkWalletConnection } from '../utils/walletConnection'
 
 export default function Dashboard() {
   
   const [user, loading] = useAuthState(auth);
-  const [account, setAccount] = useState(null);
+  const [account, setAccount] = useState<string | null>(null);
 
   const checkConnection = async () => {
     const account = await checkWalletConnection();

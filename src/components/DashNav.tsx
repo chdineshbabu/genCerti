@@ -1,18 +1,19 @@
-import { auth } from '../config/firebase';
+"use client";
+import { auth } from '@/config/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { signOut } from 'firebase/auth';
+import { connectWallet, listenForAccountChanges, checkWalletConnection } from '@/utils/walletConnection';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { signOut } from 'firebase/auth';
 import Image from 'next/image';
 import Logo from '../../public/gencertiLogo.png';
-import { connectWallet, listenForAccountChanges, checkWalletConnection } from '../utils/walletConnection'
 
 export default function DashNav() {
     const router = useRouter();
     const [user, loading] = useAuthState(auth);
     const [isOpen, setIsOpen] = useState(false);
-    const [account, setAccount] = useState(null);
-    const [isConnected, setIsConnected] = useState(false)
+    const [account, setAccount] = useState<string | null>(null);
+    const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
         if (!user && !loading) {
@@ -20,11 +21,11 @@ export default function DashNav() {
         }
     }, [user, loading, router]);
 
-    function handleSignOut() {
+    const handleSignOut = () => {
         signOut(auth).then(() => {
             router.push('/');
         });
-    }
+    };
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
@@ -35,9 +36,9 @@ export default function DashNav() {
         if (walletData) {
             setAccount(walletData.account);
             setIsConnected(true);
-            console.log(account);
         }
-    }
+    };
+
     const checkConnection = async () => {
         const account = await checkWalletConnection();
         if (account) {
@@ -51,7 +52,7 @@ export default function DashNav() {
     useEffect(() => {
         checkConnection();
 
-        listenForAccountChanges((accounts: any) => {
+        const cleanup = listenForAccountChanges((accounts: string[]) => {
             if (accounts.length > 0) {
                 setAccount(accounts[0]);
                 setIsConnected(true);
@@ -59,18 +60,20 @@ export default function DashNav() {
                 setIsConnected(false);
             }
         });
+
+        return cleanup;
     }, []);
-    const trimAddress = (address:any) => `${address.slice(0, 6)}...${address.slice(-4)}`;
+
+    const trimAddress = (address: string) => `${address.slice(0, 6)}...${address.slice(-4)}`;
 
     return (
         <div className="border-b-2 min-h-20 flex justify-between items-center px-36">
             <h1 className="text-3xl font-bold">Block<span className="bg-lime-500 text-black">Verify</span></h1>
             <div className='flex gap-6 items-center'>
                 {isConnected ? (
-                    <p className=''>{trimAddress(account)}</p>
+                    <p className=''>{account && trimAddress(account)}</p>
                 ) : (
                     <button onClick={connect} className='px-4 py-2 rounded-full hover:text-black border hover:bg-customGreen'>Connect Wallet</button>
-
                 )}
                 <div className="relative">
                     <button
@@ -80,7 +83,6 @@ export default function DashNav() {
                         type="button"
                     >
                         <span className="sr-only">Open user menu</span>
-
                         {user?.displayName}
                         <svg
                             className="w-2.5 h-2.5 ms-3"
@@ -102,7 +104,7 @@ export default function DashNav() {
                     {isOpen && (
                         <div
                             id="dropdownAvatarName"
-                            className="z-10 absolute right-0 mt-2 bg-white divide-y divide-gray-100 border rounded-lg shadow w-44 dark:bg-black   dark:divide-gray-600"
+                            className="z-10 absolute right-0 mt-2 bg-white divide-y divide-gray-100 border rounded-lg shadow w-44 dark:bg-black dark:divide-gray-600"
                         >
                             <div className="px-4 py-3 text-sm text-gray-900 dark:text-white">
                                 <div className="truncate">{user?.email}</div>
@@ -139,7 +141,6 @@ export default function DashNav() {
                             </div>
                         </div>
                     )}
-
                 </div>
             </div>
         </div>

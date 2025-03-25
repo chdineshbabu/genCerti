@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 type Certificate = {
   organizationName: string;
@@ -99,10 +100,13 @@ export default function ValiidateCerti() {
         <h1 className='text-2xl font-thin mb-4'>Click to Download</h1>
       <div onClick={()=>{router.push(`/certificate/${certificate?.certificateHash}`)}} className="flex flex-col items-center max-w-4xl  hover:opacity-55 cursor-pointer w-full mx-auto">
         <div className="relative w-[80%] aspect-[16/9] mb-6 border text-black">
-          <img
-            src={certificate?.certificateUrl}
-            alt="Certificate Background"
+          <Image 
+            src={certificate.certificateUrl} 
+            alt="Certificate" 
+            width={800}
+            height={600}
             className="rounded-lg shadow-lg object-contain w-full h-full"
+            priority
           />
           <div className="absolute inset-0 flex flex-col items-center justify-between p-8 text-center">
             <div className="">

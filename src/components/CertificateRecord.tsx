@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -38,7 +38,7 @@ export default function CertificateRecord() {
     const [error, setError] = useState('');
     const router = useRouter();
 
-    const getEvents = async () => {
+    const getEvents = useCallback(async () => {
         setLoading(true);
         try {
             const response = await axios.get(`/api/events?orgId=${user?.uid}`);
@@ -50,7 +50,7 @@ export default function CertificateRecord() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user?.uid]);
 
     const getCertificates = async (eventId: string) => {
         setLoading(true);
@@ -67,8 +67,10 @@ export default function CertificateRecord() {
     };
 
     useEffect(() => {
-        getEvents();
-    }, []);
+        if (user) {
+            getEvents();
+        }
+    }, [user, getEvents]);
 
     const handleEventChange = (eventId: string) => {
         const event = events.find((e) => e.eventId === eventId) || null;

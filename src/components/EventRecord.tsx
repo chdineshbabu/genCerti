@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { useAuthState } from 'react-firebase-hooks/auth'
@@ -57,18 +57,20 @@ export default function EventRecord() {
         }
     };
 
-    async function getEvents() {
+    const getEvents = useCallback(async () => {
         await axios.get(`/api/events?orgId=${user?.uid}`)
             .then((response) => {
                 setEvents(response.data);
             }).catch((error) => {
                 console.error('Error fetching events:', error);
             });
-    }
+    }, [user?.uid]);
 
     useEffect(() => {
-        getEvents();
-    }, [user]);
+        if (user) {
+            getEvents();
+        }
+    }, [user, getEvents]);
 
     return (
         <div className="flex flex-col md:flex-row gap-8 ml-64 max-h-screen">
