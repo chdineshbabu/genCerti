@@ -73,7 +73,7 @@ export default function EventRecord() {
     }, [user, getEvents]);
 
     return (
-        <div className="flex flex-col md:flex-row gap-8 ml-64 max-h-screen">
+        <div className="flex flex-col md:flex-row gap-8 ml-64 p-8">
             <div className="shadow-lg rounded-lg w-[80%] md:w-1/2">
                 <h2 className="text-xl font-semibold mb-4 text-white">Create New<span className='bg-customGreen text-black font-extrabold'>Event</span></h2>
                 <form onSubmit={handleSubmit} className="space-y-2">

@@ -1,19 +1,17 @@
 "use client";
-import { auth } from '@/config/firebase';
+import { auth } from '../config/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { connectWallet, listenForAccountChanges, checkWalletConnection } from '@/utils/walletConnection';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
-import Image from 'next/image';
-import Logo from '../../public/gencertiLogo.png';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { connectWallet, listenForAccountChanges, checkWalletConnection } from '../utils/walletConnection'
 
 export default function DashNav() {
     const router = useRouter();
     const [user, loading] = useAuthState(auth);
     const [isOpen, setIsOpen] = useState(false);
     const [account, setAccount] = useState<string | null>(null);
-    const [isConnected, setIsConnected] = useState(false);
+    const [isConnected, setIsConnected] = useState(false)
 
     useEffect(() => {
         if (!user && !loading) {
@@ -21,11 +19,11 @@ export default function DashNav() {
         }
     }, [user, loading, router]);
 
-    const handleSignOut = () => {
+    function handleSignOut() {
         signOut(auth).then(() => {
             router.push('/');
         });
-    };
+    }
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
@@ -37,7 +35,7 @@ export default function DashNav() {
             setAccount(walletData.account);
             setIsConnected(true);
         }
-    };
+    }
 
     const checkConnection = async () => {
         const account = await checkWalletConnection();
@@ -52,7 +50,7 @@ export default function DashNav() {
     useEffect(() => {
         checkConnection();
 
-        const cleanup = listenForAccountChanges((accounts: string[]) => {
+        listenForAccountChanges((accounts: any) => {
             if (accounts.length > 0) {
                 setAccount(accounts[0]);
                 setIsConnected(true);
@@ -60,8 +58,6 @@ export default function DashNav() {
                 setIsConnected(false);
             }
         });
-
-        return cleanup;
     }, []);
 
     const trimAddress = (address: string) => `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -71,7 +67,7 @@ export default function DashNav() {
             <h1 className="text-3xl font-bold">Block<span className="bg-lime-500 text-black">Verify</span></h1>
             <div className='flex gap-6 items-center'>
                 {isConnected ? (
-                    <p className=''>{account && trimAddress(account)}</p>
+                    <p className=''>{trimAddress(account!)}</p>
                 ) : (
                     <button onClick={connect} className='px-4 py-2 rounded-full hover:text-black border hover:bg-customGreen'>Connect Wallet</button>
                 )}
