@@ -17,7 +17,6 @@ export default function Login() {
   const [user] = useAuthState(auth);
   const [account, setAccount] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-
   const connect = async () => {
     const walletData = await connectWallet();
     if (walletData) {
@@ -26,38 +25,82 @@ export default function Login() {
       console.log(account);
     }
   };
+  const checkConnection = async () => {
+    const account = await checkWalletConnection();
+    if (account) {
+      setAccount(account);
+      setIsConnected(true);
+    } else {
+      setIsConnected(false);
+    }
+  };
 
   useEffect(() => {
-    const checkConnection = async () => {
-      const account = await checkWalletConnection();
-      if (account) {
-        setAccount(account);
-        setIsConnected(true);
-      }
-    };
-
     checkConnection();
+    listenForAccountChanges((accounts: any) => {
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+        setIsConnected(true);
+      } else {
+        setIsConnected(false);
+      }
+    });
   }, []);
 
   useEffect(() => {
     if (user && account) {
-      router.push('/dash');
+      router.push("/setup");
     }
   }, [user, router, account]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="flex flex-col items-center justify-center">
-        <Image src={Logo} alt="Logo" width={200} height={200} />
-        <h1 className="text-5xl font-thin mb-6">Welcome to <span className="text-customGreen">GenCerti</span></h1>
-        <button
-          onClick={signInWithGooglePopup}
-          className="flex items-center gap-2 px-6 py-3 border rounded-lg hover:bg-customGreen hover:text-black transition-all"
-        >
-          <FcGoogle className="text-2xl" />
-          <span>Sign in with Google</span>
-        </button>
+    <div className="min-h-screen">
+      <div className="h-20 bg-gray-950 border-b-2 flex items-center justify-center">
+        {" "}
+        <h1 className="text-3xl font-bold">Block<span className="bg-lime-500 text-black">Verify</span></h1>
       </div>
-    </main>
+      <div className="flex py-48 items-center gap-6 flex-col text-center">
+        <h1 className="text-4xl font-bold">
+          Let&apos;s try our{" "}
+          <span className="bg-customGreen text-black">service</span> now!
+        </h1>
+        <p className="font-thin text-xl">
+          Everything you need to manage certificates for an event to <br />
+          grow your community anywhere on the planet.
+        </p>
+        {user && !account ? (
+          <h1 className="text-3xl font-bold">
+            Click Here to 👉
+            <button
+              onClick={connect}
+              className="bg-white text-black hover:scale-110 transition-transform delay-75  hover:bg-customGreen px-2"
+            >
+              Connect Wallet
+            </button>
+            <br />
+            Start using{" "}
+          </h1>
+        ) : (
+          <h1 className="text-3xl font-bold">
+            Click Here to 👉
+            <button
+              onClick={signInWithGooglePopup}
+              className="bg-white text-black hover:scale-110 transition-transform delay-75  hover:bg-customGreen px-2"
+            >
+              Login{" "}
+            </button>
+            <br /> and{" "}
+            <button
+              onClick={connect}
+              className="bg-white text-black hover:scale-110 transition-transform delay-75  hover:bg-customGreen px-2"
+            >
+              Connect Wallet
+            </button>
+            <br />
+            Start using{" "}
+          </h1>
+        )}
+      </div>
+    </div>
   );
 }
